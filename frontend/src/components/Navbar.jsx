@@ -27,26 +27,19 @@ function Navbar() {
 
   return (
     <nav
-      className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b relative transition-all duration-300"
-      style={{
-        backgroundColor: 'var(--color-light)',
-        color: '#374151', // textGray
-        borderBottomColor: 'var(--color-borderColor)',
-      }}
+      className="w-full border-b bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50"
+      style={{ borderBottomColor: 'var(--color-borderColor)' }}
     >
-      {/* Logo */}
-      <Link to='/' className="flex-shrink-0">
-        <img
-          src={assets.navbarLogo}
-          alt="Company Logo"
-          className="w-30 rounded-xl shadow-md transition-transform hover:scale-105"
-          style={{
-            width: '120px',
-            height: 'auto',
-            boxShadow: `0 2px 8px var(--color-borderColor)`,
-          }}
-        />
-      </Link>
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8 py-3 gap-4">
+        {/* Logo */}
+        <Link to='/' className="flex-shrink-0 flex items-center gap-2">
+          <img
+            src={assets.navbarLogo}
+            alt="TuneShare Logo"
+            className="w-28 h-auto rounded-xl shadow-md hover:scale-105 transition-transform"
+            style={{ boxShadow: `0 2px 8px var(--color-borderColor)` }}
+          />
+        </Link>
 
       {/* Hamburger Menu Button */}
       <button
@@ -101,24 +94,20 @@ function Navbar() {
           <img src={assets.search_icon} alt="Search" className="w-5 h-5 opacity-60" />
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
-          {menuLinks.map((link, index) => (
-            <Link
-              key={index}
-              to={link.path}
-              onClick={() => setOpen(false)}
-              className="py-2 px-3 rounded-md transition-all duration-200 hover:bg-pink-50"
-              style={{
-                color: 'var(--color-primary-dull)',
-                fontWeight: 500,
-                letterSpacing: '0.01em'
-              }}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-6 flex-1 justify-center">
+            {menuLinks.map((link, index) => (
+              <Link
+                key={index}
+                to={link.path}
+                onClick={() => setOpen(false)}
+                className="text-base font-semibold text-gray-700 hover:text-pink-600 transition-colors px-2 py-1 rounded"
+                style={{ letterSpacing: '0.01em' }}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
 
         {/* Mobile Action Buttons */}
         <div className="flex flex-col sm:hidden w-full gap-4 mt-8 border-t pt-6" style={{ borderColor: 'var(--color-borderColor)' }}>
@@ -147,60 +136,43 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Search Bar (Desktop Only) */}
-      <div className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-full border transition-all duration-200 hover:shadow-sm focus-within:shadow-md"
-        style={{
-          borderColor: 'var(--color-borderColor)',
-          backgroundColor: '#ffffff',
-          minWidth: '240px',
-          maxWidth: '320px'
-        }}
-      >
-        <input
-          type="text"
-          className="flex-1 bg-transparent outline-none text-sm placeholder-gray-400"
-          placeholder="Search anything..."
-          style={{ color: '#374151' }}
-        />
-        <img src={assets.search_icon} alt="Search" className="w-5 h-5 opacity-60" />
-      </div>
+        {/* Search Bar (Desktop Only) */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-full border border-gray-200 bg-white shadow-sm focus-within:shadow-md min-w-[220px] max-w-[320px] flex-1">
+          <input
+            type="text"
+            className="flex-1 bg-transparent outline-none text-sm placeholder-gray-400"
+            placeholder="Search anything..."
+            style={{ color: '#374151' }}
+          />
+          <img src={assets.search_icon} alt="Search" className="w-5 h-5 opacity-60" />
+        </div>
 
-      {/* Welcome message and Desktop Action Buttons */}
-      <div className="hidden sm:flex items-center gap-4">
-        {user && (
-          <span className="text-primary font-semibold mr-2">Welcome, {user.name}!</span>
-        )}
-        {role === 'admin' && (
+        {/* Welcome message and Desktop Action Buttons */}
+        <div className="hidden sm:flex items-center gap-3 ml-4">
+          {user && (
+            <span className="text-primary font-semibold whitespace-nowrap">Welcome, {user.name}!</span>
+          )}
+          {role === 'admin' && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="px-4 py-2 font-semibold rounded-lg transition-all duration-200 bg-pink-500 text-white hover:bg-pink-600 shadow-sm"
+            >
+              Admin Dashboard
+            </button>
+          )}
           <button
-            onClick={() => navigate('/admin')}
-            className="px-6 py-3 font-semibold rounded-lg transition-all duration-200 hover:shadow-md bg-pink-500 text-white hover:bg-pink-600"
-            style={{ marginRight: '8px' }}
+            onClick={() => isOwner ? navigate('/owner') : changeRole()}
+            className="px-4 py-2 font-semibold rounded-lg transition-all duration-200 bg-gray-100 text-pink-700 hover:bg-gray-200 shadow-sm"
           >
-            Admin Dashboard
+            {isOwner ? 'Dashboard' : 'List Instruments'}
           </button>
-        )}
-        <button
-          onClick={() => isOwner ? navigate('/owner') : changeRole()}
-          className="px-6 py-3 font-semibold rounded-lg transition-all duration-200 hover:shadow-md"
-          style={{
-            backgroundColor: 'var(--color-borderColor)',
-            color: 'var(--color-primary-dull)',
-          }}
-        >
-          {isOwner ? 'Dashboard' : 'List Instruments'}
-        </button>
-        <button
-          onClick={() => user ? logout() : setShowLogin(true)}
-          className="px-6 py-3 font-semibold rounded-lg transition-all duration-200 hover:shadow-md"
-          style={{
-            backgroundColor: 'var(--color-primary)',
-            color: 'white',
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#e854a0'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--color-primary)'}
-        >
-          {user ? 'Logout' : 'Login'}
-        </button>
+          <button
+            onClick={() => user ? logout() : setShowLogin(true)}
+            className="px-4 py-2 font-semibold rounded-lg transition-all duration-200 bg-pink-400 text-white hover:bg-pink-500 shadow-sm"
+          >
+            {user ? 'Logout' : 'Login'}
+          </button>
+        </div>
       </div>
     </nav>
   )

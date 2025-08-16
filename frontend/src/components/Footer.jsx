@@ -28,7 +28,7 @@ const Footer = () => {
               }}
             />
             <p className="text-sm leading-relaxed mb-6 text-gray-600">
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+              TuneShare is a peer-to-peer music instrument rental platform with quality instruments. Whether you need a guitar for a gig, a keyboard for practice or drums for a recording, TuneShare makes renting instruments simple, affordable and reliable.
             </p>
             
             {/* Social Media Icons */}
