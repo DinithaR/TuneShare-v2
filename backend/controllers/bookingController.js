@@ -116,3 +116,38 @@ export const getUserBookings = async (req, res) => {
     }
 };
 
+// Update a user's booking
+export const updateUserBooking = async (req, res) => {
+  try {
+    const { _id } = req.user;
+    const { id } = req.params;
+    const { pickupDate, returnDate } = req.body;
+
+    const booking = await Booking.findOne({ _id: id, user: _id });
+    if (!booking) return res.json({ success: false, message: "Booking not found" });
+
+    booking.pickupDate = pickupDate || booking.pickupDate;
+    booking.returnDate = returnDate || booking.returnDate;
+    await booking.save();
+
+    res.json({ success: true, message: "Booking updated", booking });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Delete a user's booking
+export const deleteUserBooking = async (req, res) => {
+  try {
+    const { _id } = req.user;
+    const { id } = req.params;
+
+    const booking = await Booking.findOneAndDelete({ _id: id, user: _id });
+    if (!booking) return res.json({ success: false, message: "Booking not found" });
+
+    res.json({ success: true, message: "Booking deleted" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+

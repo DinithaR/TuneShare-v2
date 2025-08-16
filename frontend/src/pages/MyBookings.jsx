@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
 import Title from '../components/Title'
 import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([])
+  const [editId, setEditId] = useState(null)
+  const [editData, setEditData] = useState({ pickupDate: '', returnDate: '' })
   const currency = import.meta.env.VITE_CURRENCY
   const { axios } = useAppContext()
 
@@ -24,6 +27,53 @@ const MyBookings = () => {
   useEffect(() => {
     fetchMyBookings();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this booking?')) return;
+    try {
+      const { data } = await axios.delete(`/api/bookings/user/${id}`);
+      if (data.success) {
+        toast.success('Booking deleted');
+        setBookings(bookings.filter(b => b._id !== id));
+      } else {
+        toast.error(data.message || 'Delete failed');
+      }
+    } catch (error) {
+      toast.error('Delete failed');
+    }
+  };
+
+  const handleEditClick = (booking) => {
+    setEditId(booking._id);
+    setEditData({
+      pickupDate: booking.pickupDate.split('T')[0],
+      returnDate: booking.returnDate.split('T')[0]
+    });
+  };
+
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSave = async (id) => {
+    try {
+      const { data } = await axios.put(`/api/bookings/user/${id}`, editData);
+      if (data.success) {
+        toast.success('Booking updated');
+        setEditId(null);
+        fetchMyBookings();
+      } else {
+        toast.error(data.message || 'Update failed');
+      }
+    } catch (error) {
+      toast.error('Update failed');
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditId(null);
+    setEditData({ pickupDate: '', returnDate: '' });
+  };
 
   return (
     <div className='px-6 md:px-16 lg:px-32 2xl:px-48 mt-16 text-sm max-w-7xl'>
@@ -45,19 +95,54 @@ const MyBookings = () => {
                 <p className='px-3 py-1.5 rounded' style={{ backgroundColor: 'var(--color-light)' }}>Booking #{index+1}</p>
                 <p className={`px-3 py-1 text-xs rounded-full ${booking.status === 'confirmed' ? 'bg-green-400/15 text-green-600' : 'bg-red-400/15 text-red-600'}`}>{booking.status}</p>
               </div>
-              <div className='flex items-start gap-2 mt-3'>
-                <img src={assets.calendar_icon_colored} alt="" className='w-4 h-4 mt-1'/>
-                <div>
-                  <p className='text-gray-500'>Rental Period</p>
-                  <p>{booking.pickupDate.split('T')[0]} to {booking.returnDate.split('T')[0]}</p>
+              {editId === booking._id ? (
+                <div className='mt-3 flex flex-col gap-2'>
+                  <label>
+                    Pickup Date:
+                    <input
+                      type='date'
+                      name='pickupDate'
+                      value={editData.pickupDate}
+                      onChange={handleEditChange}
+                      className='ml-2 border rounded px-2 py-1'
+                    />
+                  </label>
+                  <label>
+                    Return Date:
+                    <input
+                      type='date'
+                      name='returnDate'
+                      value={editData.returnDate}
+                      onChange={handleEditChange}
+                      className='ml-2 border rounded px-2 py-1'
+                    />
+                  </label>
+                  <div className='flex gap-2 mt-2'>
+                    <button onClick={() => handleEditSave(booking._id)} className='px-3 py-1 bg-green-500 text-white rounded'>Save</button>
+                    <button onClick={handleEditCancel} className='px-3 py-1 bg-gray-300 rounded'>Cancel</button>
+                  </div>
                 </div>
-              </div>
-              <div className='flex items-start gap-2 mt-3'>
-                <img src={assets.location_icon} alt="" className='w-4 h-4 mt-1'/>
-                <div>
-                  <p className='text-gray-500'>Pick-up Location</p>
-                  <p>{booking.instrument.location}</p>
-                </div>
+              ) : (
+                <>
+                  <div className='flex items-start gap-2 mt-3'>
+                    <img src={assets.calendar_icon_colored} alt="" className='w-4 h-4 mt-1'/>
+                    <div>
+                      <p className='text-gray-500'>Rental Period</p>
+                      <p>{booking.pickupDate.split('T')[0]} to {booking.returnDate.split('T')[0]}</p>
+                    </div>
+                  </div>
+                  <div className='flex items-start gap-2 mt-3'>
+                    <img src={assets.location_icon} alt="" className='w-4 h-4 mt-1'/>
+                    <div>
+                      <p className='text-gray-500'>Pick-up Location</p>
+                      <p>{booking.instrument.location}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+              <div className='flex gap-2 mt-4'>
+                <button onClick={() => handleEditClick(booking)} className='px-3 py-1 bg-blue-500 text-white rounded'>Edit</button>
+                <button onClick={() => handleDelete(booking._id)} className='px-3 py-1 bg-red-500 text-white rounded'>Delete</button>
               </div>
             </div>
             {/* Price */}
@@ -76,3 +161,4 @@ const MyBookings = () => {
 }
 
 export default MyBookings
+

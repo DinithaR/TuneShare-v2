@@ -4,7 +4,9 @@ import {
   createBooking, 
   getOwnerBookings, 
   changeBookingStatus,
-  getUserBookings 
+  getUserBookings,
+  updateUserBooking,
+  deleteUserBooking
 } from "../controllers/bookingController.js";
 
 const bookingRouter = express.Router();
@@ -12,10 +14,13 @@ const bookingRouter = express.Router();
 // User routes
 bookingRouter.post("/create", protect, createBooking);
 bookingRouter.get("/user", protect, getUserBookings);
+bookingRouter.put("/user/:id", protect, updateUserBooking);
+bookingRouter.delete("/user/:id", protect, deleteUserBooking);
 
 // Owner routes  
 bookingRouter.get("/owner", protect, getOwnerBookings);
 bookingRouter.post("/change-status", protect, changeBookingStatus);
 
 export default bookingRouter;
+
 
