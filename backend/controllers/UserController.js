@@ -1,3 +1,47 @@
+
+// Admin: Change user role
+export const changeUserRole = async (req, res) => {
+    try {
+        const { userId, role } = req.body;
+        if (!userId || !role) return res.json({ success: false, message: 'User ID and role required' });
+        if (!['user', 'owner', 'admin'].includes(role)) return res.json({ success: false, message: 'Invalid role' });
+        const user = await User.findByIdAndUpdate(userId, { role }, { new: true, runValidators: true }).select('-password');
+        if (!user) return res.json({ success: false, message: 'User not found' });
+        res.json({ success: true, user });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Admin: Delete user
+export const deleteUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        if (!userId) return res.json({ success: false, message: 'User ID required' });
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) return res.json({ success: false, message: 'User not found' });
+        res.json({ success: true, message: 'User deleted' });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Admin: Edit user details (name, email, image)
+export const editUser = async (req, res) => {
+    try {
+        const { userId, name, email, image } = req.body;
+        if (!userId) return res.json({ success: false, message: 'User ID required' });
+        const update = {};
+        if (name) update.name = name;
+        if (email) update.email = email;
+        if (image) update.image = image;
+        const user = await User.findByIdAndUpdate(userId, update, { new: true, runValidators: true }).select('-password');
+        if (!user) return res.json({ success: false, message: 'User not found' });
+        res.json({ success: true, user });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
 // Get all instruments
 export const getInstruments = async (req, res) => {
     try {
