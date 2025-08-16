@@ -1,102 +1,150 @@
+
 import { useContext, useEffect, useState } from "react";
 import { createContext } from "react";
 import axios from 'axios';
-import {toast} from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
-
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
-
 export const AppContext = createContext();
 
+export const AppProvider = ({ children }) => {
+    const navigate = useNavigate();
+    const currency = import.meta.env.VITE_CURRENCY;
 
-export const AppProvider = ({children}) => {
+    const [token, setToken] = useState(null);
+    const [user, setUser] = useState(null);
+    const [role, setRole] = useState('user');
+    const [isOwner, setIsOwner] = useState(false);
+    const [showLogin, setShowLogin] = useState(false);
+    const [pickupDate, setPickupDate] = useState('');
+    const [returnDate, setReturnDate] = useState('');
+    const [instruments, setInstruments] = useState([]);
 
-
-    const navigate = useNavigate()
-    const currency = import.meta.env.VITE_CURRENCY
-    
-    const [token ,setToken] = useState(null)
-    const [user ,setUser] = useState(null)
-    const [isOwner ,setIsOwner] = useState(false)
-    const [showLogin ,setShowLogin] = useState(false)
-    const [pickupDate ,setPickupDate] = useState('')
-    const [returnDate ,setReturnDate] = useState('')
-
-
-    const [instruments, setInstruments] = useState([])
-
-
-    // Function to check if user is logged in
-    const fetchUser = async () => {
+    // Login
+    const login = async (email, password) => {
         try {
-            const {data} = await axios.get('/api/user/data')
+            const { data } = await axios.post('/api/user/login', { email, password });
             if (data.success) {
-                setUser(data.user)
-                setIsOwner(data.user.role === 'owner')
+                setToken(data.token);
+                setRole(data.role);
+                localStorage.setItem('token', data.token);
+                axios.defaults.headers.common['Authorization'] = data.token;
+                fetchUser();
+                setShowLogin(false);
+                toast.success('Login successful');
             } else {
-                navigate('/')
+                toast.error(data.message);
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         }
-    }
+    };
 
+    // Register
+    const register = async (name, email, password) => {
+        try {
+            const { data } = await axios.post('/api/user/register', { name, email, password });
+            if (data.success) {
+                setToken(data.token);
+                setRole(data.role);
+                localStorage.setItem('token', data.token);
+                axios.defaults.headers.common['Authorization'] = data.token;
+                fetchUser();
+                setShowLogin(false);
+                toast.success('Registration successful');
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    };
 
-    // Function to fetch all instruments from the server
+    // Promote user to owner
+    const becomeOwner = async () => {
+        try {
+            const { data } = await axios.post('/api/user/become-owner');
+            if (data.success) {
+                setRole('owner');
+                setUser(data.user);
+                setIsOwner(true);
+                toast.success('You are now an owner!');
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error('Failed to become owner');
+        }
+    };
+
+    // Fetch user data
+    const fetchUser = async () => {
+        try {
+            const { data } = await axios.get('/api/user/data');
+            if (data.success) {
+                setUser(data.user);
+                setRole(data.user.role);
+                setIsOwner(data.user.role === 'owner');
+            } else {
+                setUser(null);
+                setRole('user');
+                setIsOwner(false);
+                navigate('/');
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    };
+
+    // Fetch all instruments
     const fetchInstruments = async () => {
         try {
-            const {data} = await axios.get('/api/user/instruments')
-            data.success ? setInstruments(data.instruments) : toast.error(data.message)
+            const { data } = await axios.get('/api/user/instruments');
+            data.success ? setInstruments(data.instruments) : toast.error(data.message);
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         }
-    }
+    };
 
-
-    // Function to log out the user
+    // Logout
     const logout = () => {
-        localStorage.removeItem('token')
-        setToken(null)
-        setUser(null)
-        setIsOwner(false)
-        axios.defaults.headers.common['Authorization'] = ''
-        toast.success('You have been logged out')
-    }
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        setRole('user');
+        setIsOwner(false);
+        axios.defaults.headers.common['Authorization'] = '';
+        toast.success('You have been logged out');
+        navigate('/');
+    };
 
-
-    // useEffect to retrieve the token from localStorage
+    // On mount, get token and fetch instruments
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        setToken(token)
-        fetchInstruments()
-    },[])
-
-
-    // useEffect to fetch user data when token is available
-    useEffect(() => {
-        if(token){
-            axios.defaults.headers.common['Authorization'] = `${token}`
-            fetchUser()
+        const token = localStorage.getItem('token');
+        setToken(token);
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = token;
+            fetchUser();
         }
-    },[token])
-
+        fetchInstruments();
+    }, []);
 
     const value = {
-        navigate, currency, axios, user, setUser, token, setToken, isOwner, setIsOwner, fetchUser, showLogin, setShowLogin, logout, fetchInstruments, instruments, setInstruments, pickupDate, setPickupDate, returnDate, setReturnDate
-    }
-
+        navigate, currency, axios, user, setUser, token, setToken, role, setRole, isOwner, setIsOwner,
+        showLogin, setShowLogin, logout, fetchUser, fetchInstruments, instruments, setInstruments,
+        pickupDate, setPickupDate, returnDate, setReturnDate, login, register, becomeOwner
+    };
 
     return (
         <AppContext.Provider value={value}>
-            { children }
+            {children}
         </AppContext.Provider>
-    )
-}
-
+    );
+};
 
 export const useAppContext = () => {
-    return useContext(AppContext)
-}
+    return useContext(AppContext);
+};
 

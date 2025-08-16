@@ -5,7 +5,7 @@ import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
 
 function Navbar() {
-  const { setShowLogin, user, logout, isOwner, axios, setIsOwner} = useAppContext()
+  const { setShowLogin, user, logout, isOwner, axios, setIsOwner, role } = useAppContext()
 
   const location = useLocation()
   const [open, setOpen] = useState(false)
@@ -148,10 +148,9 @@ function Navbar() {
       </div>
 
       {/* Search Bar (Desktop Only) */}
-      <div 
-        className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-full border transition-all duration-200 hover:shadow-sm focus-within:shadow-md"
-        style={{ 
-          borderColor: 'var(--color-borderColor)', 
+      <div className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-full border transition-all duration-200 hover:shadow-sm focus-within:shadow-md"
+        style={{
+          borderColor: 'var(--color-borderColor)',
           backgroundColor: '#ffffff',
           minWidth: '240px',
           maxWidth: '320px'
@@ -166,8 +165,20 @@ function Navbar() {
         <img src={assets.search_icon} alt="Search" className="w-5 h-5 opacity-60" />
       </div>
 
-      {/* ✅ Fixed: Desktop Action Buttons - Updated to match mobile styling and functionality */}
+      {/* Welcome message and Desktop Action Buttons */}
       <div className="hidden sm:flex items-center gap-4">
+        {user && (
+          <span className="text-primary font-semibold mr-2">Welcome, {user.name}!</span>
+        )}
+        {role === 'admin' && (
+          <button
+            onClick={() => navigate('/admin')}
+            className="px-6 py-3 font-semibold rounded-lg transition-all duration-200 hover:shadow-md bg-pink-500 text-white hover:bg-pink-600"
+            style={{ marginRight: '8px' }}
+          >
+            Admin Dashboard
+          </button>
+        )}
         <button
           onClick={() => isOwner ? navigate('/owner') : changeRole()}
           className="px-6 py-3 font-semibold rounded-lg transition-all duration-200 hover:shadow-md"
