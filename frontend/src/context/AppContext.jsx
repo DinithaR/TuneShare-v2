@@ -21,10 +21,12 @@ export const AppProvider = ({ children }) => {
     const [pickupDate, setPickupDate] = useState('');
     const [returnDate, setReturnDate] = useState('');
     const [instruments, setInstruments] = useState([]);
+    const [authLoading, setAuthLoading] = useState(true);
 
     // Login
     const login = async (email, password) => {
         try {
+            setAuthLoading(true);
             const { data } = await axios.post('/api/user/login', { email, password });
             if (data.success) {
                 setToken(data.token);
@@ -32,20 +34,22 @@ export const AppProvider = ({ children }) => {
                 localStorage.setItem('token', data.token);
                 axios.defaults.headers.common['Authorization'] = data.token;
                 await fetchUser();
-                setShowLogin(false);
-                toast.success('Login successful');
-                navigate('/'); // Force redirect to home to trigger UI update
+                                setShowLogin(false);
+                                toast.success('Login successful');
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
             toast.error(error.message);
+        } finally {
+            setAuthLoading(false);
         }
     };
 
     // Register
     const register = async (name, email, password) => {
         try {
+            setAuthLoading(true);
             const { data } = await axios.post('/api/user/register', { name, email, password });
             if (data.success) {
                 setToken(data.token);
@@ -53,14 +57,15 @@ export const AppProvider = ({ children }) => {
                 localStorage.setItem('token', data.token);
                 axios.defaults.headers.common['Authorization'] = data.token;
                 await fetchUser();
-                setShowLogin(false);
-                toast.success('Registration successful');
-                navigate('/'); // Force redirect to home to trigger UI update
+                                setShowLogin(false);
+                                toast.success('Registration successful');
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
             toast.error(error.message);
+        } finally {
+            setAuthLoading(false);
         }
     };
 
@@ -91,7 +96,6 @@ export const AppProvider = ({ children }) => {
             if (data.success) {
                 setUser(data.user);
                 setRole(data.user.role);
-                // isOwner is true if role is 'owner' or 'admin' (admin can access owner features)
                 setIsOwner(data.user.role === 'owner' || data.user.role === 'admin');
             } else {
                 setUser(null);
@@ -101,6 +105,8 @@ export const AppProvider = ({ children }) => {
             }
         } catch (error) {
             toast.error(error.message);
+        } finally {
+            setAuthLoading(false);
         }
     };
 
@@ -133,14 +139,16 @@ export const AppProvider = ({ children }) => {
         if (token) {
             axios.defaults.headers.common['Authorization'] = token;
             fetchUser();
+        } else {
+            setAuthLoading(false);
         }
         fetchInstruments();
     }, []);
 
     const value = {
-        navigate, currency, axios, user, setUser, token, setToken, role, setRole, isOwner, setIsOwner,
-        showLogin, setShowLogin, logout, fetchUser, fetchInstruments, instruments, setInstruments,
-        pickupDate, setPickupDate, returnDate, setReturnDate, login, register, becomeOwner
+    navigate, currency, axios, user, setUser, token, setToken, role, setRole, isOwner, setIsOwner,
+    showLogin, setShowLogin, logout, fetchUser, fetchInstruments, instruments, setInstruments,
+    pickupDate, setPickupDate, returnDate, setReturnDate, login, register, becomeOwner, authLoading
     };
 
     return (

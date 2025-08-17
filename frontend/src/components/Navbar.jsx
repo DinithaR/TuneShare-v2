@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
+import Loader from './Loader'
 import { assets, menuLinks } from '../assets/assets'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
 
 function Navbar() {
-  const { setShowLogin, user, logout, isOwner, axios, setIsOwner, role } = useAppContext()
+  const { setShowLogin, user, logout, isOwner, axios, setIsOwner, role, authLoading } = useAppContext()
 
   const location = useLocation()
   const [open, setOpen] = useState(false)
@@ -23,6 +24,14 @@ function Navbar() {
     } catch (error) {
       toast.error(error.message)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <nav className="w-full border-b bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 flex items-center justify-center h-20">
+        <Loader />
+      </nav>
+    );
   }
 
   return (

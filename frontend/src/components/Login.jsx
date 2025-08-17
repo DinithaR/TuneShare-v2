@@ -21,6 +21,9 @@ const Login = () => {
                 setToken(data.token)
                 localStorage.setItem('token', data.token)
                 setShowLogin(false)
+                setTimeout(() => {
+                  window.location.reload();
+                }, 200);
             } else {
                 toast.error(data.message)
             }
