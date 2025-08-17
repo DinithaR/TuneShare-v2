@@ -1,3 +1,38 @@
+// Admin: Get all instruments
+export const adminGetAllInstruments = async (req, res) => {
+    try {
+        const instruments = await Instrument.find();
+        res.json({ success: true, instruments });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Admin: Delete instrument
+export const adminDeleteInstrument = async (req, res) => {
+    try {
+        const { instrumentId } = req.params;
+        if (!instrumentId) return res.json({ success: false, message: 'Instrument ID required' });
+        const instrument = await Instrument.findByIdAndDelete(instrumentId);
+        if (!instrument) return res.json({ success: false, message: 'Instrument not found' });
+        res.json({ success: true, message: 'Instrument deleted' });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Admin: Edit instrument
+export const adminEditInstrument = async (req, res) => {
+    try {
+        const { instrumentId, ...update } = req.body;
+        if (!instrumentId) return res.json({ success: false, message: 'Instrument ID required' });
+        const instrument = await Instrument.findByIdAndUpdate(instrumentId, update, { new: true, runValidators: true });
+        if (!instrument) return res.json({ success: false, message: 'Instrument not found' });
+        res.json({ success: true, instrument });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
 
 // Admin: Change user role
 export const changeUserRole = async (req, res) => {

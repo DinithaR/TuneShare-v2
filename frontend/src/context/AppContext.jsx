@@ -31,9 +31,10 @@ export const AppProvider = ({ children }) => {
                 setRole(data.role);
                 localStorage.setItem('token', data.token);
                 axios.defaults.headers.common['Authorization'] = data.token;
-                fetchUser();
+                await fetchUser();
                 setShowLogin(false);
                 toast.success('Login successful');
+                navigate('/'); // Force redirect to home to trigger UI update
             } else {
                 toast.error(data.message);
             }
@@ -51,9 +52,10 @@ export const AppProvider = ({ children }) => {
                 setRole(data.role);
                 localStorage.setItem('token', data.token);
                 axios.defaults.headers.common['Authorization'] = data.token;
-                fetchUser();
+                await fetchUser();
                 setShowLogin(false);
                 toast.success('Registration successful');
+                navigate('/'); // Force redirect to home to trigger UI update
             } else {
                 toast.error(data.message);
             }
@@ -67,8 +69,11 @@ export const AppProvider = ({ children }) => {
         try {
             const { data } = await axios.post('/api/user/become-owner');
             if (data.success) {
-                setRole('owner');
+                // Only set role to 'owner' if current role is 'user'.
                 setUser(data.user);
+                if (role === 'user') {
+                    setRole('owner');
+                }
                 setIsOwner(true);
                 toast.success('You are now an owner!');
             } else {
@@ -86,7 +91,8 @@ export const AppProvider = ({ children }) => {
             if (data.success) {
                 setUser(data.user);
                 setRole(data.user.role);
-                setIsOwner(data.user.role === 'owner');
+                // isOwner is true if role is 'owner' or 'admin' (admin can access owner features)
+                setIsOwner(data.user.role === 'owner' || data.user.role === 'admin');
             } else {
                 setUser(null);
                 setRole('user');

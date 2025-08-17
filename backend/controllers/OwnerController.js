@@ -142,7 +142,8 @@ export const getDashboardData = async (req, res) => {
     try {
         const {_id, role} = req.user;
 
-        if(role !== 'owner'){
+        // Allow both owner and admin
+        if(role !== 'owner' && role !== 'admin'){
             return res.json({success: false, message: "Unauthorized"})
         }
 
@@ -152,8 +153,8 @@ export const getDashboardData = async (req, res) => {
         const pendingBookings = await Booking.find({owner: _id, status: "pending"})
         const completedBookings = await Booking.find({owner: _id, status: "confirmed"})
 
-        // Calculate monthlyRevenue froom bookings where status is confirmed
-        const monthlyRevenue = bookings.slice().filter(bookings => bookings.status === 'confirmed').reduce((acc, booking) => acc + booking.price, 0)
+        // Calculate monthlyRevenue from bookings where status is confirmed
+        const monthlyRevenue = bookings.filter(booking => booking.status === 'confirmed').reduce((acc, booking) => acc + booking.price, 0)
 
         const dashboardData = {
             totalInstruments: instruments.length,

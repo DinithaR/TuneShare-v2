@@ -23,8 +23,11 @@ export const isAdmin = (req, res, next) => {
     next();
 };
 
+
 export const isOwner = (req, res, next) => {
-    if (req.user.role !== 'owner') return res.status(403).json({ success: false, message: 'Owner only' });
+    if (req.user.role !== 'owner' && req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Owner or Admin only' });
+    }
     next();
 };
 

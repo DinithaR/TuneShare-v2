@@ -1,9 +1,15 @@
 
+
 import express from "express";
-import { getInstruments, getUserData, loginUser, registerUser, becomeOwner, getAllUsers, changeUserRole, deleteUser, editUser } from "../controllers/UserController.js";
+import { getInstruments, getUserData, loginUser, registerUser, becomeOwner, getAllUsers, changeUserRole, deleteUser, editUser, adminGetAllInstruments, adminDeleteInstrument, adminEditInstrument } from "../controllers/UserController.js";
 import { protect, isAdmin } from "../middleware/auth.js";
 
 const userRouter = express.Router();
+
+// Admin instrument management
+userRouter.get('/admin/instruments', protect, isAdmin, adminGetAllInstruments);
+userRouter.delete('/admin/instruments/:instrumentId', protect, isAdmin, adminDeleteInstrument);
+userRouter.put('/admin/instruments/edit', protect, isAdmin, adminEditInstrument);
 
 userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);

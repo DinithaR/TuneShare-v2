@@ -39,9 +39,7 @@ const App = () => {
           <Route path="manage-instruments" element={<ManageInstruments />} />
           <Route path="manage-bookings" element={<ManageBookings />} />
         </Route>
-        {role === 'admin' && (
-          <Route path='/admin' element={<AdminDashboard />} />
-        )}
+  <Route path='/admin' element={role === 'admin' ? <AdminDashboard /> : <div className="flex items-center justify-center h-96 text-2xl font-bold text-red-500">Unauthorized</div>} />
       </Routes>
 
       {!isOwnerPath && <Footer />}
