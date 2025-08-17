@@ -15,6 +15,7 @@ import Login from './components/Login'
 import { Toaster } from 'react-hot-toast'
 import { useAppContext } from './context/AppContext'
 import AdminDashboard from './pages/AdminDashboard'
+import Profile from './pages/Profile'
 
 
 const App = () => {
@@ -28,7 +29,8 @@ const App = () => {
 
       {!isOwnerPath && <Navbar />}
 
-      <Routes>
+  <Routes>
+  <Route path='/profile' element={<Profile />} />
         <Route path='/' element={<Home />} />
         <Route path='/instrument-details/:id' element={<InstrumentDetails />} />
         <Route path='/instruments' element={<Instruments />} />

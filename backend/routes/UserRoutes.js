@@ -21,7 +21,7 @@ userRouter.post('/become-owner', protect, becomeOwner);
 userRouter.get('/all', protect, isAdmin, getAllUsers);
 userRouter.post('/change-role', protect, isAdmin, changeUserRole);
 userRouter.delete('/delete/:userId', protect, isAdmin, deleteUser);
-userRouter.put('/edit', protect, isAdmin, editUser);
+userRouter.put('/edit', protect, editUser);
 
 export default userRouter;
 

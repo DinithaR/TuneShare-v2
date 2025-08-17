@@ -159,7 +159,20 @@ function Navbar() {
         {/* Welcome message and Desktop Action Buttons */}
         <div className="hidden sm:flex items-center gap-3 ml-4">
           {user && (
-            <span className="text-primary font-semibold whitespace-nowrap">Welcome, {user.name}!</span>
+            <>
+              <span className="text-primary font-semibold whitespace-nowrap">Welcome, {user.name}!</span>
+              <button
+                onClick={() => navigate('/profile')}
+                className="ml-2 flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary bg-white hover:shadow-md transition"
+                title="Profile"
+              >
+                <img
+                  src={user.image || '/src/assets/user_profile.jpg'}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              </button>
+            </>
           )}
           {role === 'admin' && (
             <button

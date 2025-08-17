@@ -65,7 +65,11 @@ export const deleteUser = async (req, res) => {
 export const editUser = async (req, res) => {
     try {
         const { userId, name, email, image } = req.body;
+        // Only allow editing self unless admin
         if (!userId) return res.json({ success: false, message: 'User ID required' });
+        if (req.user.role !== 'admin' && req.user._id.toString() !== userId) {
+            return res.json({ success: false, message: 'Unauthorized' });
+        }
         const update = {};
         if (name) update.name = name;
         if (email) update.email = email;
