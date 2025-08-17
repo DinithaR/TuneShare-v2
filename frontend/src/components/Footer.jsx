@@ -155,7 +155,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="py-6 text-center">
           <p className="text-xs md:text-sm text-gray-600">
-            Copyright 2024 © TuneShare. All Rights Reserved.
+            Copyright 2025 © TuneShare. All Rights Reserved.
           </p>
         </div>
       </footer>
